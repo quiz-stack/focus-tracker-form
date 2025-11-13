@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Google Form with Focus Tracking</title>
+  <title>Google Form with Focus & Submission Tracking</title>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -17,48 +17,86 @@
     iframe {
       width: 100%;
       max-width: 640px;
-      height: 900px;
       border: 1px solid #ccc;
       border-radius: 8px;
+      transition: height 0.3s;
+      overflow: hidden;
     }
   </style>
 </head>
 <body>
   <h1>Please complete this form below</h1>
 
-  <!-- Google Form embed with English enforced -->
   <iframe
+    id="googleForm"
     src="https://docs.google.com/forms/d/e/1FAIpQLSd3eVmgR2GlBMJ4I2_WoS3kCuoZproIoI8ENiwYREXYeRYpRg/viewform?embedded=true&hl=en"
     frameborder="0"
     marginheight="0"
-    marginwidth="0">
+    marginwidth="0"
+    height="900">
     Loading…
   </iframe>
 
   <script>
-    // Generate a random session ID
     const sessionId = Math.random().toString(36).substring(2, 10);
     let lostFocusCount = 0;
-
-    // Google Apps Script Web App URL
     const webhook = "https://script.google.com/macros/s/AKfycbwlk78u-4cT5NaFZGS70FlxiwJj_RKLjYG42PfICucqaTk-jlyu4Vcd1LnmsnDzvcda/exec";
 
-    // Detect tab switching
+    // Helper to log events
+    function logEvent(eventName, count = null) {
+      const payload = { sessionId, event: eventName };
+      if (count !== null) payload.count = count;
+
+      fetch(webhook, {
+        method: "POST",
+        mode: "no-cors",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      }).catch(err => console.error("Logging failed:", err));
+    }
+
+    // Focus tracking
     document.addEventListener("visibilitychange", () => {
       if (document.hidden) {
         lostFocusCount++;
-        fetch(webhook, {
-          method: "POST",
-          mode: "no-cors", // important for GitHub Pages
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            sessionId,
-            event: "tab_blur",
-            count: lostFocusCount
-          })
-        }).catch(err => console.error("Logging failed:", err));
+        logEvent("tab_blur", lostFocusCount);
       }
     });
+
+    // Dynamic iframe height
+    const iframe = document.getElementById("googleForm");
+    function resizeIframe() {
+      try {
+        const iframeDoc = iframe.contentWindow.document;
+        if (iframeDoc) {
+          const scrollHeight = iframeDoc.body.scrollHeight;
+          iframe.style.height = scrollHeight + 20 + "px";
+        }
+      } catch(err) {
+        const width = window.innerWidth;
+        iframe.style.height = Math.max(900, width * 1.4) + "px";
+      }
+    }
+    setInterval(resizeIframe, 500);
+    window.addEventListener("resize", resizeIframe);
+    resizeIframe();
+
+    // Form submission detection
+    const originalSrc = iframe.src;
+    let submitted = false;
+
+    setInterval(() => {
+      try {
+        const currentSrc = iframe.contentWindow.location.href;
+        // Check if iframe navigated away from original form URL
+        if (!submitted && currentSrc !== originalSrc) {
+          submitted = true;
+          logEvent("form_submitted");
+        }
+      } catch(err) {
+        // Cross-origin error; ignore
+      }
+    }, 1000); // check every second
   </script>
 </body>
 </html>
