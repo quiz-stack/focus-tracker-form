@@ -1,53 +1,47 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
-<html>
+<!DOCTYPE html>
+<html lang="en">
 <head>
-  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-  <meta http-equiv="Content-Style-Type" content="text/css">
-  <title></title>
-  <meta name="Generator" content="Cocoa HTML Writer">
-  <meta name="CocoaVersion" content="2685.2">
-  <style type="text/css">
-    p.p1 {margin: 0.0px 0.0px 0.0px 0.0px; font: 12.0px Helvetica}
-    p.p2 {margin: 0.0px 0.0px 0.0px 0.0px; font: 12.0px Helvetica; min-height: 14.0px}
-  </style>
+  <meta charset="UTF-8" />
+  <title>Google Form with Focus Tracking</title>
+  <script>
+    // Generate a random session ID to identify each visitor
+    const sessionId = Math.random().toString(36).substring(2, 10);
+    let lostFocusCount = 0;
+
+    // Your Google Apps Script endpoint
+    const webhook = "https://script.google.com/macros/s/AKfycbyHIWs0GRGSmyP42_BIvsRUBlEN--0j7pzbi24ATwicSvx86zhT5F-Wqb_YTlVE0I7P/exec";
+
+    // Detect when the user switches away from the tab
+    document.addEventListener("visibilitychange", () => {
+      if (document.hidden) {
+        lostFocusCount++;
+
+        // Send data to Google Sheets via your Apps Script
+        fetch(webhook, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            sessionId,
+            event: "tab_blur",
+            count: lostFocusCount
+          })
+        });
+      }
+    });
+  </script>
 </head>
 <body>
-<p class="p1">&lt;!DOCTYPE html&gt;</p>
-<p class="p1">&lt;html lang="en"&gt;</p>
-<p class="p1">&lt;head&gt;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>&lt;meta charset="UTF-8" /&gt;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>&lt;title&gt;Google Form with Focus Tracking&lt;/title&gt;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>&lt;script&gt;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>const sessionId = Math.random().toString(36).substring(2, 10);</p>
-<p class="p1"><span class="Apple-converted-space">    </span>let lostFocusCount = 0;</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">    </span>const webhook = "https://script.google.com/macros/s/AKfycbyHIWs0GRGSmyP42_BIvsRUBlEN--0j7pzbi24ATwicSvx86zhT5F-Wqb_YTlVE0I7P/exec";</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">    </span>document.addEventListener("visibilitychange", () =&gt; {</p>
-<p class="p1"><span class="Apple-converted-space">      </span>if (document.hidden) {</p>
-<p class="p1"><span class="Apple-converted-space">        </span>lostFocusCount++;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>fetch(webhook, {</p>
-<p class="p1"><span class="Apple-converted-space">          </span>method: "POST",</p>
-<p class="p1"><span class="Apple-converted-space">          </span>headers: { "Content-Type": "application/json" },</p>
-<p class="p1"><span class="Apple-converted-space">          </span>body: JSON.stringify({</p>
-<p class="p1"><span class="Apple-converted-space">            </span>sessionId,</p>
-<p class="p1"><span class="Apple-converted-space">            </span>event: "tab_blur",</p>
-<p class="p1"><span class="Apple-converted-space">            </span>count: lostFocusCount</p>
-<p class="p1"><span class="Apple-converted-space">          </span>})</p>
-<p class="p1"><span class="Apple-converted-space">        </span>});</p>
-<p class="p1"><span class="Apple-converted-space">      </span>}</p>
-<p class="p1"><span class="Apple-converted-space">    </span>});</p>
-<p class="p1"><span class="Apple-converted-space">  </span>&lt;/script&gt;</p>
-<p class="p1">&lt;/head&gt;</p>
-<p class="p1">&lt;body&gt;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>&lt;h1&gt;Please complete this form below&lt;/h1&gt;</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">  </span>&lt;iframe</p>
-<p class="p1"><span class="Apple-converted-space">    </span>src="<iframe src="https://docs.google.com/forms/d/e/1FAIpQLSd3eVmgR2GlBMJ4I2_WoS3kCuoZproIoI8ENiwYREXYeRYpRg/viewform?embedded=true" width="640" height="382" frameborder="0" marginheight="0" marginwidth="0">Loading…</iframe>"</p>
-<p class="p1"><span class="Apple-converted-space">    </span>width="640" height="900" frameborder="0" marginheight="0" marginwidth="0"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>Loading…</p>
-<p class="p1"><span class="Apple-converted-space">  </span>&lt;/iframe&gt;</p>
-<p class="p1">&lt;/body&gt;</p>
-<p class="p1">&lt;/html&gt;</p>
+  <h1>Please complete this form below</h1>
+
+  <!-- ✅ Your actual Google Form embed -->
+  <iframe
+    src="https://docs.google.com/forms/d/e/1FAIpQLSd3eVmgR2GlBMJ4I2_WoS3kCuoZproIoI8ENiwYREXYeRYpRg/viewform?embedded=true"
+    width="640"
+    height="900"
+    frameborder="0"
+    marginheight="0"
+    marginwidth="0">
+    Loading…
+  </iframe>
 </body>
 </html>
