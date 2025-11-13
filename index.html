@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Google Form with Focus Tracking</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      margin: 20px;
+      background-color: #f9f9f9;
+    }
+    h1 {
+      color: #333;
+      margin-bottom: 20px;
+    }
+    iframe {
+      width: 100%;
+      max-width: 640px;
+      height: 900px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+    }
+  </style>
+  <script>
+    // Random session ID for each visitor
+    const sessionId = Math.random().toString(36).substring(2, 10);
+    let lostFocusCount = 0;
+
+    // Google Apps Script Web App URL
+    const webhook = "https://script.google.com/macros/s/AKfycbwlk78u-4cT5NaFZGS70FlxiwJj_RKLjYG42PfICucqaTk-jlyu4Vcd1LnmsnDzvcda/exec";
+
+    // Detect when user switches away from the tab
+    document.addEventListener("visibilitychange", () => {
+      if (document.hidden) {
+        lostFocusCount++;
+        fetch(webhook, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            sessionId,
+            event: "tab_blur",
+            count: lostFocusCount
+          })
+        }).catch(err => console.error("Logging failed:", err));
+      }
+    });
+  </script>
+</head>
+<body>
+  <h1>Please complete this form below</h1>
+
+  <!-- Embedded Google Form -->
+  <iframe
+    src="https://docs.google.com/forms/d/e/1FAIpQLSd3eVmgR2GlBMJ4I2_WoS3kCuoZproIoI8ENiwYREXYeRYpRg/viewform?embedded=true"
+    frameborder="0"
+    marginheight="0"
+    marginwidth="0">
+    Loading…
+  </iframe>
+</body>
+</html>
